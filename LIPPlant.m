@@ -29,7 +29,7 @@ classdef LIPPlant < HybridDrakeSystem
 
     function [xn, m, status] = stepDynamics(obj,m,t,x,u)
       r_ic = obj.getICPoint(x);
-      xn = [x(1:2); 0.5*(x(1:2) + r_ic); x(5:6)];
+      xn = [x(1:2); r_ic; x(5:6)];
       status = 0;
     end
 

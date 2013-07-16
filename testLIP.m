@@ -10,5 +10,6 @@ figure(1)
 plot(linspace(ts(1),ts(end)), [xval; xval(1,:) + omega_0 * zc * xval(5,:)]);
 legend('rx', 'ry', 'r_ankx', 'r_anky', 'rdx', 'rdy', 'r_icx');
 v = r.constructVisualizer();
+v.playbackAVI(xtraj, 'latest.avi');
 v.playback(xtraj, struct('slider', 1));
 end
