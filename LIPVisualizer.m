@@ -18,7 +18,11 @@ classdef LIPVisualizer < Visualizer
       end
 
       sfigure(hFig);
-      plot3([x(1), x(3)], [x(2), x(4)], [obj.plant.zc, 0], 'ro');
+      hold off
+      plot3([x(1), x(3)], [x(2), x(4)], [obj.plant.zc, 0], 'ro-');
+      hold on
+      r_ic = obj.plant.getICPoint(x);
+      plot3([r_ic(1)], [r_ic(2)], 0, 'g*')
       axis image;
       axis([-1, 1, -1, 1, -0.5, 1.5]);
     end
