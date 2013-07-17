@@ -24,7 +24,7 @@ classdef LIPPlant < HybridDrakeSystem
 
     function gx = guardICx(obj,t,x,u)
       r_ic = obj.getICPoint(x);
-      gx = 0.5 - abs(r_ic(1) - x(1));
+      gx = 0.5 - norm(r_ic(1:2) - x(1:2));
     end
 
     function [xn, m, status] = stepDynamics(obj,m,t,x,u)
