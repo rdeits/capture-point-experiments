@@ -19,7 +19,7 @@ classdef LIPVisualizer < Visualizer
 
       sfigure(hFig);
       hold off
-      plot3([x(1), x(3)], [x(2), x(4)], [obj.plant.zc, 0], 'ro-');
+      plot3([x(1), x(3)], [x(2), x(4)], [0, obj.plant.zc], 'ro-');
       hold on
       r_ic = obj.plant.getICPoint(x);
       plot3([r_ic(1)], [r_ic(2)], 0, 'g*')
