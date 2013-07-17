@@ -39,7 +39,7 @@ classdef LIPPlant < HybridDrakeSystem
 
     function r_ic = getICPoint(obj, x)
       omega_0 = sqrt(obj.g/obj.zc);
-      r_ic = [x(1); x(2)] + omega_0 * obj.zc * [x(5); x(6)];
+      r_ic = [x(1); x(2)] + omega_0 * [x(5); x(6)];
     end
 
     % function y = output(obj,t,x,u)
