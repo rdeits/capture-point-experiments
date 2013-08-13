@@ -1,2 +1,0 @@
-classdef LIPStateFrame.m < CoordinateFrame
-  

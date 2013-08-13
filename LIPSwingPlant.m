@@ -4,6 +4,8 @@ classdef LIPSwingPlant < DrakeSystem
     zc
     g
     Ac
+    w = 1
+    dt = 0.25
   end
 
   methods
@@ -32,6 +34,8 @@ classdef LIPSwingPlant < DrakeSystem
 
     function y = output(obj,t,x,u)
       y = x;
+      Ex = 1/2 * (x(5)/obj.omega_0)^2 - 1/2*(x(3) - x(1))^2;
+      Ef = -obj.w^2/8;
     end
 
     function xcdot = dynamics(obj,t,x,u)
@@ -49,6 +53,19 @@ classdef LIPSwingPlant < DrakeSystem
     function r_ic = getICPoint(obj, x)
       r_ic = [x(3); x(4)] + 1/obj.omega_0 * [x(5); x(6)];
     end
+
+    function r_a1f = getRa1f(obj, x)
+      r_a1f = [x(3) + sqrt((x(5)/obj.omega_0)^2 - obj.w^2/2 * (cosh(obj.omega_0 * obj.dt)-5/2));0];
+    end
+
+    function r_a2f = getRa2f(obj, x)
+      if x(5) > 0
+        r_a2f = [x(3) + sqrt((x(5)/obj.omega_0)^2 + (obj.w/2)^2);0];
+      else
+        r_a2f = [x(3) - sqrt((x(5)/obj.omega_0)^2 + (obj.w/2)^2);0];
+      end
+    end
+
   end
 end
 
