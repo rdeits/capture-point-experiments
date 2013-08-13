@@ -1,0 +1,43 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+
+\begin{document}
+Our goal is to bring a two-legged system to a stable standing position from a wide range of initial conditions. We'll define our final goal state as $r(t_f) = 0$, $\dot{r}(t_f) = 0$ for some $t_f$ which we don't necessarily need to know. In this paper, I'll be using the non-dimensionalized values from the capture point work and omitting the prime notations for simplicity. Since our final configuration has the legs a distance $2l$ apart, let's assert that at $t=0$ we have $r_a = l$ and at $t=-\Delta t$ we have $r_a = -l$.\\\\
+\begin{tabular}{c c c c}
+t & E & $r_a$ & r\\
+\hline
+$0<t<t_f$ & $\frac{-l^2}{2}$ & $l$ & $r = \dot{r}_0 \sinh(t) + (r_0 - l) \cosh(t) + l$ \\
+$-\Delta t < t < 0$ & $\frac{1}{2}\dot{r}_0^2 - \frac{1}{2}(r_0 + l)^2$ & $-l$ & $r = \dot{r}_0 \sinh(t) + (r_0 + l) \cosh(t) - l$ \\
+\end{tabular}\\\\
+and\\\\
+\begin{tabular}{c c c}
+t & r & $\dot{r}$ \\
+\hline
+$t_f$ & 0 & 0\\
+0 & $r_0$ & $\dot{r}_0$ \\
+$-\Delta t$ & $\dot{r}_0 (-s) + (r_0 + l) c - l$ & $\dot{r}_0 c + (r_0 + l) (-s)$
+\end{tabular}\\\\
+Where $s = \sinh(\Delta t)$, $c = \cosh(\Delta t)$.
+
+If the system had no other switching, then figuring out where to put the final step would be easy because we simply need to step to an ankle position which sets the orbital energy $E$ to be $E = \frac{-l^2}{2}$. 
+
+For the $0<t<t_1$ period, let's find the equations of motion:
+
+\begin{align}
+	\ddot{r} = r - l\\
+	r(0) = r_0\\
+	\dot{r}(0) = \dot{r}_0\\
+	r = A_0 \sinh(t) + B_0 \cosh(t) + C_0\\
+	\dot{r} = A_0 \cosh(t) + B_0 \sinh(t)\\
+	\ddot{r} = A_0 \sinh(t) + B_0 \cosh(t) = r - C_0\\
+	C_0 = l\\
+ 	r(0) = B_0 + C_0 = r_0\\
+ 	B_0 + l = r_0\\
+ 	B_0 = r_0 - l\\
+ 	\dot{r}(0) = A_0 = \dot{r}_0\\
+ 	r = \dot{r}_0 \sinh(t) + (r_0 - l) \cosh(t) + l
+\end{align}
+
+
+\end{document}
