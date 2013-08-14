@@ -1,6 +1,7 @@
 classdef LIPVisualizer < Visualizer
   properties
     plant
+    controller
   end
 
   methods
@@ -8,7 +9,7 @@ classdef LIPVisualizer < Visualizer
       obj = obj@Visualizer(r.getOutputFrame());
       obj.plant = r;
     end
-
+    
     function draw(obj, t, x)
       persistent hFig
 
@@ -34,8 +35,11 @@ classdef LIPVisualizer < Visualizer
 %       plot(r_icn(1), 0, 'b*');
       plot3(r_ic(1), r_ic(2), 0, 'g*');
       plot3(r_icn(1), r_icn(2), 0, 'b*');
+      
+      steps = obj.controller.planRecovery(t, x);
+      plot3(steps(1,:), steps(2,:), zeros(1, size(steps, 2)), 'ko');
       axis image;
-      axis([-3, 3, -1, 1, -0.5, 1.5]);
+      axis([-3, 3, -2, 2, -0.5, 1.5]);
 %       xlim([-10, 10]);
     end
   end

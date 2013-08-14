@@ -16,6 +16,51 @@ classdef CapturePointController < DrakeSystem
     function ts = getSampleTime(obj)
       ts = [[0;0], [0.01;0]];
     end
+    
+    function [r_des, still_falling] = getNextStep(obj,r_ic,r_a,is_right_foot)
+      if is_right_foot
+        if (r_ic(1) > r_a(1)) && (r_ic(1) < r_a(1) + obj.r.w) && (abs(r_ic(2) - r_a(2)) < obj.r.w)
+          r_des = (r_ic - r_a(1:2)) / norm(r_ic - r_a(1:2)) * obj.r.w + r_a(1:2);
+          still_falling = false;
+        else
+          r_des = r_ic + [obj.r.w/2; 0] * 1/exp(obj.r.dt * obj.r.omega_0);
+          r_des = max([r_des, [r_a(1); r_a(2) - obj.r.w]], [], 2);
+          r_des = min([r_des, [r_a(1) + obj.r.w; r_a(2) + obj.r.w]], [], 2);
+          still_falling = true;
+        end
+      else
+        if (r_ic(1) < r_a(1)) && (r_ic(1) > r_a(1) - obj.r.w) && (abs(r_ic(2) - r_a(2)) < obj.r.w)
+          r_des = (r_ic - r_a(1:2)) / norm(r_ic - r_a(1:2)) * obj.r.w + r_a(1:2);
+          still_falling = false;
+        else
+          r_des = r_ic - [obj.r.w/2; 0] * 1/exp(obj.r.dt * obj.r.omega_0);
+          r_des = max([r_des, [r_a(1) - obj.r.w; r_a(2) - obj.r.w]], [], 2);
+          r_des = min([r_des, [r_a(1); r_a(2) + obj.r.w]], [], 2);
+          still_falling = true;
+        end
+      end
+    end
+      
+    function steps = planRecovery(obj,t,u)
+      persistent stored_steps
+      if isempty(stored_steps)
+        r_ic = obj.r.getICPoint(u);
+        r_a = u(1:2);
+        is_right_foot = false;
+        falling = true;
+        stored_steps = [];
+
+        while size(stored_steps, 2) < 10
+          r_ic = (r_ic - r_a) * exp(obj.r.dt * obj.r.omega_0) + r_a;
+          [next_step, falling] = getNextStep(obj, r_ic, r_a, is_right_foot);
+          is_right_foot = ~is_right_foot;
+          r_a = next_step;
+          stored_steps(:,end+1) = next_step;
+        end
+      end
+      steps = stored_steps;
+    end
+      
 
     function x = update(obj,t,x,u)
       persistent status is_falling
@@ -31,74 +76,13 @@ classdef CapturePointController < DrakeSystem
       
       if is_falling
         if floor(t / obj.r.dt) > status
-
-          if mod(status, 2) == 1
-            if (r_ic(1) > u(1)) && (r_ic(1) < u(1) + obj.r.w) && (abs(r_ic(2) - u(2)) < obj.r.w)
-              r_des = (r_ic - u(1:2)) / norm(r_ic - u(1:2)) * obj.r.w + u(1:2);
-              is_falling = false;
-            else
-              r_des = r_ic + [obj.r.w/2; 0] * 1/exp(obj.r.dt * obj.r.omega_0);
-              r_des = max([r_des, [u(1); u(2) - obj.r.w]], [], 2);
-              r_des = min([r_des, [u(1) + obj.r.w; u(2) + obj.r.w]], [], 2);
-            end
-          else
-            if (r_ic(1) < u(1)) && (r_ic(1) > u(1) - obj.r.w) && (abs(r_ic(2) - u(2)) < obj.r.w)
-              r_des = (r_ic - u(1:2)) / norm(r_ic - u(1:2)) * obj.r.w + u(1:2);
-              is_falling = false;
-            else
-              r_des = r_ic - [obj.r.w/2; 0] * 1/exp(obj.r.dt * obj.r.omega_0);
-              r_des = max([r_des, [u(1) - obj.r.w; u(2) - obj.r.w]], [], 2);
-              r_des = min([r_des, [u(1); u(2) + obj.r.w]], [], 2);
-            end
-          end
+          r_des = getNextStep(obj, r_ic, u(1:2), mod(status, 2));
           x = r_des;
           status = floor(t / obj.r.dt);
         end
       else
         x = (r_ic - u(1:2)) / norm(r_ic - u(1:2)) * obj.r.w + u(1:2);
       end
-            
-%             
-%         
-%         
-%         r_des = real(obj.r.getRa2f(u));
-%         if mod(status, 2) == 0
-%           r_des = min([r_des, u(3:4)], [], 2);
-%         else
-%           r_des = max([r_des, u(3:4)], [], 2);
-%         end
-%         max_step = 1;
-%         if r_des(1) - u(3) > max_step
-%           r_des(1) = u(3) + max_step;
-%         elseif u(3) - r_des(1) > max_step
-%           r_des(1) = u(3) - max_step;
-%         end
-%         status = floor(t / obj.r.dt);
-%       else
-%         r_des = x;
-%       end
-% 
-%       
-%       x = r_des;
-%       
-%       if t < obj.r.dt
-%         r_des = [u(1:2)];
-%       elseif t > obj.r.dt && t < 2*obj.r.dt && status == 0
-%         status = 1;
-%         r_des = real(obj.r.getRa2f(u));
-%       % elseif t > 2*obj.r.dt && t < 3*obj.r.dt && status == 1
-%       %   status = 2;
-%       %   r_des = real(obj.r.getRa2f(u));
-%       else
-%         % if status
-%         %   r_des = [u(3) + obj.r.w/2; u(2)];
-%         % else
-%         %   r_des = [u(3) - obj.r.w/2; u(2)];
-%         % end
-%         % status = ~status;
-%         r_des = x;
-%       end
-%       x = r_des;
 
 %       u;
 %       x;
