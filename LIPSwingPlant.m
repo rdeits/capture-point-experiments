@@ -53,6 +53,11 @@ classdef LIPSwingPlant < DrakeSystem
     function r_ic = getICPoint(obj, x)
       r_ic = [x(3); x(4)] + 1/obj.omega_0 * [x(5); x(6)];
     end
+    
+    function r_icn = getNextICPoint(obj, x)
+      r_ic = getICPoint(obj, x);
+      r_icn = (r_ic - [x(1); x(2)]) * exp(obj.dt * obj.omega_0) + [x(1);x(2)];
+    end
 
     function r_a1f = getRa1f(obj, x)
       r_a1f = [x(3) + sqrt((x(5)/obj.omega_0)^2 - obj.w^2/2 * (cosh(obj.omega_0 * obj.dt)-5/2));0];
